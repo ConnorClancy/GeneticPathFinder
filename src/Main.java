@@ -43,17 +43,24 @@ public class Main {
         Test to create 10 totally random paths through the field. Something similar
         will be used later as the first generation.
          */
-        Chromosome firstGroup;
-
-        for (int i = 0; i < 10; i++){
-            firstGroup = new Chromosome();
-            firstGroup.createPath(fieldMatrix);
-            for(NodeLocation curr : firstGroup.PATH){
-                F.colour(curr.GRID_X, curr.GRID_Y, firstGroup.PATH_COLOUR);
-                System.out.println(curr.COLUMN + " , " + curr.ROW);
+        Chromosome[] firstGroup = new Chromosome[12];
+        Chromosome currentMember;
+        for (int i = 0; i < 12; i++){
+            currentMember = new Chromosome();
+            currentMember.createPath(fieldMatrix);
+            Thread.sleep(50);
+            for(NodeLocation curr : currentMember.PATH){
+                F.colour(curr.GRID_X, curr.GRID_Y, currentMember.PATH_COLOUR);
+               // System.out.println(curr.COLUMN + " , " + curr.ROW);
                 Thread.sleep(50);
             }
+            System.out.println(i + ": " + currentMember.SCORE);
+            firstGroup[i] = currentMember;
             F.update(F.getGraphics());
         }
+
+//        for(int i = 0; i < firstGroup.length; i++){
+//            System.out.println(i + ": " + firstGroup[i].SCORE);
+//        }
     }
 }

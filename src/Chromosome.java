@@ -7,6 +7,7 @@ public class Chromosome {
     Color PATH_COLOUR;
     int SCORE;
     LinkedList<NodeLocation> PATH = new LinkedList<>();
+    NodeLocation CLOSEST_POINT;
 
     //used for initial population space
     public Chromosome(){
@@ -19,13 +20,22 @@ public class Chromosome {
         PATH_COLOUR = colour;
     }
 
-    private void fitnessCalc(){
-        SCORE = 10;
+    /*
+    Fitness is based off of length of the path, how close it ended to the goal and how close the path
+    was at its closest point. Multiplication is used for the destination distance and closest point distance
+    instead of addition in order to prioritise the goal state over length in the early stages and path
+    length over closeness to goal in later stages (as that should reduce to 0 when all of the current generation
+    reach the goal node and optimisation becomes more concerning).
+     */
+    private void fitnessCalc(int fieldSize){
+        SCORE = PATH.size() +
+                Math.abs(PATH.getLast().COLUMN - fieldSize) + Math.abs(PATH.getLast().ROW - fieldSize) *
+                Math.abs(CLOSEST_POINT.COLUMN - fieldSize) + Math.abs(CLOSEST_POINT.ROW - fieldSize);
     }
 
-    public void setPath(LinkedList<NodeLocation> L){
+    public void setPath(LinkedList<NodeLocation> L, int fieldSize){
         PATH = L;
-        fitnessCalc();
+        fitnessCalc(fieldSize);
     }
 
     /*
@@ -40,6 +50,9 @@ public class Chromosome {
         NodeLocation curr = PATH.getFirst();
         NodeLocation next;
         String[] neighbours;
+        int temp;
+        int closest = 100;
+
         while(curr.COLUMN != fieldMatrix.length-1 || curr.ROW != fieldMatrix.length-1){
             neighbours = curr.traversableNeighbours.keySet().toArray(new String[0]);
             Random r = new Random();
@@ -51,14 +64,21 @@ public class Chromosome {
                 next = curr.traversableNeighbours.get(neighbours[(selection++)%neighbours.length]);
                 stuckCount++;
                 if(stuckCount >= neighbours.length){
-                    SCORE = 100;
+                    fitnessCalc(fieldMatrix.length);
                     return;
                 }
             }
             curr = next;
+
+            temp = Math.abs(curr.COLUMN - fieldMatrix.length) + Math.abs(curr.ROW - fieldMatrix.length);
+            if(temp <= closest){
+                closest = temp;
+                CLOSEST_POINT = curr;
+            }
+
             PATH.add(curr);
         }
-        fitnessCalc();
+        fitnessCalc(fieldMatrix.length);
     }
 
 }

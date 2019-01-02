@@ -32,7 +32,7 @@ public class Field extends JFrame {
     Fills an individual square on the grid with a set colour.
      */
     public void colour(int x, int y, Color c){
-        System.out.println("X: " + x + " Y: " + y);
+//        System.out.println("X: " + x + " Y: " + y);
         Graphics gr = getContentPane().getGraphics();
         gr.setColor(c);
         gr.fillRect(x+1,y-21, 23, 23);
