@@ -2,12 +2,12 @@ import java.awt.*;
 import java.util.LinkedList;
 import java.util.Random;
 
-public class Chromosome {
+public class Chromosome implements Comparable{
 
     Color PATH_COLOUR;
-    int SCORE;
     LinkedList<NodeLocation> PATH = new LinkedList<>();
-    NodeLocation CLOSEST_POINT;
+    private NodeLocation CLOSEST_POINT;
+    int SCORE;
 
     //used for initial population space
     public Chromosome(){
@@ -81,4 +81,8 @@ public class Chromosome {
         fitnessCalc(fieldMatrix.length);
     }
 
+    @Override
+    public int compareTo(Object o) {
+        return SCORE - ((Chromosome)o).SCORE;
+    }
 }

@@ -38,29 +38,39 @@ public class Main {
                 }
             }
         }
-
-        /*
-        Test to create 10 totally random paths through the field. Something similar
-        will be used later as the first generation.
-         */
-        Chromosome[] firstGroup = new Chromosome[12];
+        
+        Chromosome[] firstGroup = new Chromosome[15];
         Chromosome currentMember;
-        for (int i = 0; i < 12; i++){
+        F.setTitle("generation 1");
+        for (int i = 0; i < 15; i++){
             currentMember = new Chromosome();
             currentMember.createPath(fieldMatrix);
-            Thread.sleep(50);
             for(NodeLocation curr : currentMember.PATH){
                 F.colour(curr.GRID_X, curr.GRID_Y, currentMember.PATH_COLOUR);
-               // System.out.println(curr.COLUMN + " , " + curr.ROW);
-                Thread.sleep(50);
+//                System.out.println(curr.COLUMN + " , " + curr.ROW);
+//                Thread.sleep(50);
             }
-            System.out.println(i + ": " + currentMember.SCORE);
+            System.out.println(i+1 + ": " + currentMember.SCORE);
             firstGroup[i] = currentMember;
+            Thread.sleep(300);
             F.update(F.getGraphics());
         }
 
-//        for(int i = 0; i < firstGroup.length; i++){
-//            System.out.println(i + ": " + firstGroup[i].SCORE);
-//        }
+        Selector selector = new TournamentSelection();
+        selector.setElitism(false);
+        Chromosome[] newGen = selector.produceSelection(firstGroup);
+
+        F.setTitle("parents");
+        System.out.println("----- new selection -----");
+        for(Chromosome c : newGen ){
+            System.out.println(c.SCORE);
+            for(NodeLocation curr : c.PATH){
+                F.colour(curr.GRID_X, curr.GRID_Y, c.PATH_COLOUR);
+            }
+            Thread.sleep(300);
+            F.update(F.getGraphics());
+        }
+
     }
+
 }
