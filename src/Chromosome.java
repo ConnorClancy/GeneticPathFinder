@@ -15,8 +15,11 @@ public class Chromosome implements Comparable{
         PATH_COLOUR = new Color(r.nextFloat(), r.nextFloat(), r.nextFloat());
     }
 
-    //used once cross-pollination has occurred to set the colour of the path to be a mixture of the parent's colours
-    public Chromosome(Color colour){
+    //used once cross-pollination has occurred to set the path and colour of the path to be a mixture of the parent's colours
+    public Chromosome(LinkedList<NodeLocation> L, int fieldSize, Color colour, NodeLocation closestPoint){
+        PATH = L;
+        CLOSEST_POINT = closestPoint;
+        fitnessCalc(fieldSize);
         PATH_COLOUR = colour;
     }
 
@@ -35,7 +38,11 @@ public class Chromosome implements Comparable{
 
     public void setPath(LinkedList<NodeLocation> L, int fieldSize){
         PATH = L;
-        fitnessCalc(fieldSize);
+        //fitnessCalc(fieldSize);
+    }
+
+    public void setCLOSEST_POINT(NodeLocation point){
+        CLOSEST_POINT = point;
     }
 
     /*
