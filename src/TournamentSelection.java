@@ -34,15 +34,17 @@ public class TournamentSelection implements Selector{
         }
 
         Random R = new Random();
-        Chromosome choice, leftover = new Chromosome();
+        Chromosome choice;
+        ArrayList<Chromosome> leftovers = new ArrayList<>();
         float selectionThreshold;
         float t;
         int populationSize = currentGen.length;
 
-        //Check for odd population size, if so cut the last member out and pit it against a random member later on
-        if(populationSize % 2 == 1) {
+        //Check for odd population size or if number of parents produced will be odd,
+        // if so cut the last member out and pit it against a random member later on
+        while(populationSize % 2 == 1 || (populationSize/2) % 2 == 1) {
             populationSize--;
-            leftover = currentGen[populationSize];
+            leftovers.add(currentGen[populationSize]);
         }
 
         for(int i = 0; i < populationSize; i+=2){
@@ -58,19 +60,22 @@ public class TournamentSelection implements Selector{
 
         //If population was odd, find random winning candidate and apply tournament algorithm to the new pair
         if(populationSize != currentGen.length) {
+            //System.out.println("debug: pop-" + populationSize + " | genLen-" + currentGen.length);
             System.out.println("----odd number of population----");
-            Chromosome opponent = selection.get(R.nextInt(selection.size()));
-            selectionThreshold = opponent.SCORE / (opponent.SCORE + leftover.SCORE + 0.0f);
-            System.out.println("1: " + opponent.SCORE + "\t|| 2: " + leftover.SCORE + "\t----> threshold: " + selectionThreshold);
-            if((t = R.nextFloat()) < selectionThreshold){
-                selection.remove(opponent);
-                selection.add(leftover);
+            for(Chromosome leftover : leftovers) {
+                Chromosome opponent = selection.get(R.nextInt(selection.size()));
+                selectionThreshold = opponent.SCORE / (opponent.SCORE + leftover.SCORE + 0.0f);
+                System.out.println("1: " + opponent.SCORE + "\t|| 2: " + leftover.SCORE + "\t----> threshold: " + selectionThreshold);
+                if ((t = R.nextFloat()) < selectionThreshold) {
+                    selection.remove(opponent);
+                    selection.add(leftover);
+                }
+                System.out.println("choice = " + t);
             }
-            System.out.println("choice = " + t);
         }
 
         Collections.shuffle(selection);//shuffle to reduce coupling of groups through generations
-        return selection.toArray(new Chromosome[currentGen.length/2]);
+        return selection.toArray(new Chromosome[selection.size()]);
     }
 
     @Override

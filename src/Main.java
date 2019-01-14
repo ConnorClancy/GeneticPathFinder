@@ -47,10 +47,10 @@ public class Main {
             }
         }
 
-        Chromosome[] firstGroup = new Chromosome[15];
+        Chromosome[] firstGroup = new Chromosome[20];
         Chromosome currentMember;
         F.setTitle("generation 1");
-        for (int i = 0; i < 15; i++){
+        for (int i = 0; i < 20; i++){
             currentMember = new Chromosome();
             currentMember.createPath(fieldMatrix);
             for(NodeLocation curr : currentMember.PATH){
@@ -68,61 +68,69 @@ public class Main {
         selector.setElitism(false);
         Chromosome[] Parents = selector.produceSelection(firstGroup);
 
-//        F.setTitle("parents");
-//        System.out.println("----- new selection -----");
-//        for(Chromosome c : newGen ){
-//            System.out.println(c.SCORE);
-//            for(NodeLocation curr : c.PATH){
-//                F.colour(curr.GRID_X, curr.GRID_Y, c.PATH_COLOUR);
-//            }
-//            Thread.sleep(300);
-//            F.update(F.getGraphics());
-//        }
-
         F.setTitle("parents");
         System.out.println("----- new selection -----");
-
-        F.setTitle("parent 0");
-        System.out.println(Parents[0].SCORE);
-        for(NodeLocation curr : Parents[0].PATH){
-            F.colour(curr.GRID_X, curr.GRID_Y, Parents[0].PATH_COLOUR);
-            Thread.sleep(20);
-        }
-        Thread.sleep(300);
-        //F.update(F.getGraphics());
-
-        Field F1 = new Field(GRIDSIZE, fieldMatrix);
-        F1.setTitle("parent 1");
-        System.out.println(Parents[1].SCORE);
-        for(NodeLocation curr : Parents[1].PATH){
-            F1.colour(curr.GRID_X, curr.GRID_Y, Parents[1].PATH_COLOUR);
-            Thread.sleep(20);
-        }
-        Thread.sleep(300);
-
-        for(NodeLocation n : Parents[0].PATH){
-            System.out.print(n.getName() + " | ");
-        }
-        System.out.println("\n____________");
-        for(NodeLocation n : Parents[1].PATH){
-            System.out.print(n.getName() + " | ");
-        }
-        System.out.println("\n");
-
-
-        //F.setTitle("children of 0 and 1");
-        System.out.println("----- children -----");
-        Field X;
-        for(Chromosome c : crossPollinate(Parents[0], Parents[1], 2)){
-            X = new Field(GRIDSIZE, fieldMatrix);
-            X.setTitle(c.SCORE + "!");
+        for(Chromosome c : Parents ){
             System.out.println(c.SCORE);
-            X.colour(100, 100, c.PATH_COLOUR);
             for(NodeLocation curr : c.PATH){
-                X.colour(curr.GRID_X, curr.GRID_Y, c.PATH_COLOUR);
-                Thread.sleep(20);
+                F.colour(curr.GRID_X, curr.GRID_Y, c.PATH_COLOUR);
             }
-            Thread.sleep(500);
+            Thread.sleep(300);
+            F.update(F.getGraphics());
+        }
+
+
+
+//         F.setTitle("parents");
+//        System.out.println("----- new selection -----");
+//
+//        F.setTitle("parent 0");
+//        System.out.println(Parents[0].SCORE);
+//        for(NodeLocation curr : Parents[0].PATH){
+//            F.colour(curr.GRID_X, curr.GRID_Y, Parents[0].PATH_COLOUR);
+//            Thread.sleep(20);
+//        }
+//        Thread.sleep(300);
+//        F.update(F.getGraphics());
+//
+//        Field F1 = new Field(GRIDSIZE, fieldMatrix);
+//        F1.setTitle("parent 1");
+//        System.out.println(Parents[1].SCORE);
+//        for(NodeLocation curr : Parents[1].PATH){
+//            F1.colour(curr.GRID_X, curr.GRID_Y, Parents[1].PATH_COLOUR);
+//            Thread.sleep(20);
+//        }
+//        Thread.sleep(300);
+//
+//        for(NodeLocation n : Parents[0].PATH){
+//            System.out.print(n.getName() + " | ");
+//        }
+//        System.out.println("\n____________");
+//        for(NodeLocation n : Parents[1].PATH){
+//            System.out.print(n.getName() + " | ");
+//        }
+//        System.out.println("\n");
+
+        System.out.println("----- children -----");
+        for(int i = 0; i < Parents.length; i+=2) {
+//            for(NodeLocation n : Parents[i].PATH){
+//            System.out.print(n.getName() + " | ");
+//            }
+//            System.out.println("\n____________");
+//            for(NodeLocation n : Parents[i+1].PATH){
+//                System.out.print(n.getName() + " | ");
+//            }
+//            System.out.println("\n");
+            F.setTitle("children of " + i + " and " + (i+1));
+            for (Chromosome c : crossPollinate(Parents[i], Parents[i+1], 2)) {
+                System.out.println(c.SCORE);
+                for (NodeLocation curr : c.PATH) {
+                    F.colour(curr.GRID_X, curr.GRID_Y, c.PATH_COLOUR);
+                    Thread.sleep(20);
+                }
+                Thread.sleep(500);
+                F.update(F.getGraphics());
+            }
         }
     }
 
@@ -167,13 +175,10 @@ public class Main {
                 if (crossPath.contains(curr)) {
                     int index = crossPath.indexOf(curr);
                     choice = R.nextInt(2);
-                     System.out.println("Potential Switch");
+//                    System.out.println("Potential Switch");
                     if (choice == 0) {
-                        System.out.println("actual Switch");
-                        tempPath = crossPath;
-                        crossPath = currentPath;
-                        currentPath = tempPath;
-                        while(index >= crossIterator.nextIndex() && crossIterator.hasNext()){
+//                        System.out.println("actual Switch");
+                        while(index-1 > crossIterator.nextIndex()){
                             crossIterator.next();
                         }
                         while(index < crossIterator.nextIndex()){
@@ -183,15 +188,29 @@ public class Main {
                         tempIterator = crossIterator;
                         crossIterator = currentIterator;
                         currentIterator = tempIterator;
+
+                        tempPath = crossPath;
+                        crossPath = currentPath;
+                        currentPath = tempPath;
                     }
                 }
             }
             for(NodeLocation n : P){
                 System.out.print(n.getName()+ " | ");
             }
-            Chromosome child = new Chromosome(P, GRIDSIZE, Color.RED, closest_point_marker);
+            Chromosome child = new Chromosome(P, GRIDSIZE, mixColour(par1, par2), closest_point_marker);
             children[i] = child;
         }
         return children;
+    }
+
+    static Color mixColour(Chromosome par1, Chromosome par2){
+        Random R = new Random();
+        int offsetR = R.nextInt(40) - 20;
+        int offsetG = R.nextInt(20) - 20;
+        int offsetB = R.nextInt(20) - 20;
+        return new Color(((par1.PATH_COLOUR.getRed() + par2.PATH_COLOUR.getRed())/2 + offsetR)%255 + 1,
+                ((par1.PATH_COLOUR.getGreen() + par2.PATH_COLOUR.getGreen())/2 + offsetG)%255 + 1,
+                ((par1.PATH_COLOUR.getBlue() + par2.PATH_COLOUR.getBlue())/2 + offsetB)%255 + 1);
     }
 }
