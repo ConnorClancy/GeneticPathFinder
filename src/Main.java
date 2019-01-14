@@ -66,7 +66,7 @@ public class Main {
 
         Selector selector = new TournamentSelection();
         selector.setElitism(false);
-        Chromosome[] newGen = selector.produceSelection(firstGroup);
+        Chromosome[] Parents = selector.produceSelection(firstGroup);
 
 //        F.setTitle("parents");
 //        System.out.println("----- new selection -----");
@@ -79,14 +79,51 @@ public class Main {
 //            F.update(F.getGraphics());
 //        }
 
-        for(NodeLocation n : newGen[0].PATH){
+        F.setTitle("parents");
+        System.out.println("----- new selection -----");
+
+        F.setTitle("parent 0");
+        System.out.println(Parents[0].SCORE);
+        for(NodeLocation curr : Parents[0].PATH){
+            F.colour(curr.GRID_X, curr.GRID_Y, Parents[0].PATH_COLOUR);
+            Thread.sleep(20);
+        }
+        Thread.sleep(300);
+        //F.update(F.getGraphics());
+
+        Field F1 = new Field(GRIDSIZE, fieldMatrix);
+        F1.setTitle("parent 1");
+        System.out.println(Parents[1].SCORE);
+        for(NodeLocation curr : Parents[1].PATH){
+            F1.colour(curr.GRID_X, curr.GRID_Y, Parents[1].PATH_COLOUR);
+            Thread.sleep(20);
+        }
+        Thread.sleep(300);
+
+        for(NodeLocation n : Parents[0].PATH){
             System.out.print(n.getName() + " | ");
         }
         System.out.println("\n____________");
-        for(NodeLocation n : newGen[1].PATH){
+        for(NodeLocation n : Parents[1].PATH){
             System.out.print(n.getName() + " | ");
         }
-        crossPollinate(newGen[0], newGen[1], 2);
+        System.out.println("\n");
+
+
+        //F.setTitle("children of 0 and 1");
+        System.out.println("----- children -----");
+        Field X;
+        for(Chromosome c : crossPollinate(Parents[0], Parents[1], 2)){
+            X = new Field(GRIDSIZE, fieldMatrix);
+            X.setTitle(c.SCORE + "!");
+            System.out.println(c.SCORE);
+            X.colour(100, 100, c.PATH_COLOUR);
+            for(NodeLocation curr : c.PATH){
+                X.colour(curr.GRID_X, curr.GRID_Y, c.PATH_COLOUR);
+                Thread.sleep(20);
+            }
+            Thread.sleep(500);
+        }
     }
 
     static Chromosome[] crossPollinate(Chromosome par1, Chromosome par2, int number_of_children) {
@@ -119,7 +156,7 @@ public class Main {
             int closest = 100;
             while(currentIterator.hasNext()){
                 curr = currentIterator.next();
-                System.out.println(curr.COLUMN + " , " + curr.ROW);
+                //System.out.println(curr.COLUMN + " , " + curr.ROW);
                 P.add(curr);
 
                 int currScore = Math.abs(curr.COLUMN - GRIDSIZE) + Math.abs(curr.ROW - GRIDSIZE);
@@ -130,14 +167,13 @@ public class Main {
                 if (crossPath.contains(curr)) {
                     int index = crossPath.indexOf(curr);
                     choice = R.nextInt(2);
-                    System.out.println("Potential Switch");
+                     System.out.println("Potential Switch");
                     if (choice == 0) {
                         System.out.println("actual Switch");
                         tempPath = crossPath;
                         crossPath = currentPath;
                         currentPath = tempPath;
-
-                        while(index >= crossIterator.nextIndex()){
+                        while(index >= crossIterator.nextIndex() && crossIterator.hasNext()){
                             crossIterator.next();
                         }
                         while(index < crossIterator.nextIndex()){
