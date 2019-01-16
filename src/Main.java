@@ -1,5 +1,4 @@
 import java.awt.*;
-import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.ListIterator;
 import java.util.Random;
@@ -122,7 +121,7 @@ public class Main {
 //            }
 //            System.out.println("\n");
             F.setTitle("children of " + i + " and " + (i+1));
-            for (Chromosome c : crossPollinate(Parents[i], Parents[i+1], 2)) {
+            for (Chromosome c : crossPollinate(Parents[i], Parents[i+1], 4)) {
                 System.out.println(c.SCORE);
                 for (NodeLocation curr : c.PATH) {
                     F.colour(curr.GRID_X, curr.GRID_Y, c.PATH_COLOUR);
@@ -164,6 +163,8 @@ public class Main {
             int closest = 100;
             while(currentIterator.hasNext()){
                 curr = currentIterator.next();
+                if(P.contains(curr))
+                    continue;
                 //System.out.println(curr.COLUMN + " , " + curr.ROW);
                 P.add(curr);
 
@@ -173,18 +174,21 @@ public class Main {
                     closest_point_marker = curr;
                 }
                 if (crossPath.contains(curr)) {
-                    int index = crossPath.indexOf(curr);
                     choice = R.nextInt(2);
 //                    System.out.println("Potential Switch");
                     if (choice == 0) {
 //                        System.out.println("actual Switch");
-                        while(index-1 > crossIterator.nextIndex()){
+                        int index = crossPath.indexOf(curr);
+                        while(index-1 > crossIterator.nextIndex() && currentIterator.hasNext()){
+                            System.out.println("\nNEXT - Index-1: " + (index-1) + " Iterator: " + crossIterator.nextIndex()+ " crosssize: "
+                                    + crossPath.size() +" currentsize: " +  currentPath.size()+ "curr: " + curr.getName());
                             crossIterator.next();
                         }
-                        while(index < crossIterator.nextIndex()){
+                        while(index <= crossIterator.previousIndex()){
+                            System.out.println("\nPREV - Index: " + index + " Iterator: " + crossIterator.nextIndex()+ " crosssize: "
+                                    + crossPath.size() +" currentsize: " +  currentPath.size() + "curr: " + curr.getName());
                             crossIterator.previous();
                         }
-                        crossIterator.next();
                         tempIterator = crossIterator;
                         crossIterator = currentIterator;
                         currentIterator = tempIterator;
@@ -198,6 +202,7 @@ public class Main {
             for(NodeLocation n : P){
                 System.out.print(n.getName()+ " | ");
             }
+            System.out.println("\n");
             Chromosome child = new Chromosome(P, GRIDSIZE, mixColour(par1, par2), closest_point_marker);
             children[i] = child;
         }
