@@ -63,7 +63,7 @@ public class Main {
             F.update(F.getGraphics());
         }
 
-        Selector selector = new TournamentSelection();
+        Selector selector = new TournamentSelection(2);
         selector.setElitism(false);
         Chromosome[] Parents = selector.produceSelection(firstGroup);
 
@@ -77,38 +77,6 @@ public class Main {
             Thread.sleep(300);
             F.update(F.getGraphics());
         }
-
-
-
-//         F.setTitle("parents");
-//        System.out.println("----- new selection -----");
-//
-//        F.setTitle("parent 0");
-//        System.out.println(Parents[0].SCORE);
-//        for(NodeLocation curr : Parents[0].PATH){
-//            F.colour(curr.GRID_X, curr.GRID_Y, Parents[0].PATH_COLOUR);
-//            Thread.sleep(20);
-//        }
-//        Thread.sleep(300);
-//        F.update(F.getGraphics());
-//
-//        Field F1 = new Field(GRIDSIZE, fieldMatrix);
-//        F1.setTitle("parent 1");
-//        System.out.println(Parents[1].SCORE);
-//        for(NodeLocation curr : Parents[1].PATH){
-//            F1.colour(curr.GRID_X, curr.GRID_Y, Parents[1].PATH_COLOUR);
-//            Thread.sleep(20);
-//        }
-//        Thread.sleep(300);
-//
-//        for(NodeLocation n : Parents[0].PATH){
-//            System.out.print(n.getName() + " | ");
-//        }
-//        System.out.println("\n____________");
-//        for(NodeLocation n : Parents[1].PATH){
-//            System.out.print(n.getName() + " | ");
-//        }
-//        System.out.println("\n");
 
         System.out.println("----- children -----");
         for(int i = 0; i < Parents.length; i+=2) {
