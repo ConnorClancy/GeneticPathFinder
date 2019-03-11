@@ -46,6 +46,8 @@ public class Main {
             }
         }
 
+
+
         Chromosome[] firstGroup = new Chromosome[20];
         Chromosome currentMember;
         F.setTitle("generation 1");
@@ -62,6 +64,8 @@ public class Main {
             Thread.sleep(300);
             F.update(F.getGraphics());
         }
+
+
 
         Selector selector = new TournamentSelection(2);
         selector.setElitism(false);
@@ -99,6 +103,7 @@ public class Main {
                 F.update(F.getGraphics());
             }
         }
+        
     }
 
     static Chromosome[] crossPollinate(Chromosome par1, Chromosome par2, int number_of_children) {
@@ -147,9 +152,13 @@ public class Main {
                     if (choice == 0) {
 //                        System.out.println("actual Switch");
                         int index = crossPath.indexOf(curr);
-                        while(index-1 > crossIterator.nextIndex() && currentIterator.hasNext()){
+                        while(index-1 > crossIterator.nextIndex()){
                             System.out.println("\nNEXT - Index-1: " + (index-1) + " Iterator: " + crossIterator.nextIndex()+ " crosssize: "
                                     + crossPath.size() +" currentsize: " +  currentPath.size()+ "curr: " + curr.getName());
+                            if(!currentIterator.hasNext()){
+                                System.out.println("\nhappened\n");
+                                break;
+                            }
                             crossIterator.next();
                         }
                         while(index <= crossIterator.previousIndex()){
@@ -185,5 +194,16 @@ public class Main {
         return new Color(((par1.PATH_COLOUR.getRed() + par2.PATH_COLOUR.getRed())/2 + offsetR)%255 + 1,
                 ((par1.PATH_COLOUR.getGreen() + par2.PATH_COLOUR.getGreen())/2 + offsetG)%255 + 1,
                 ((par1.PATH_COLOUR.getBlue() + par2.PATH_COLOUR.getBlue())/2 + offsetB)%255 + 1);
+    }
+
+    private LinkedList<NodeLocation> getSwapLocations(Chromosome parent1, Chromosome parent2){
+        LinkedList<NodeLocation> swapLocations = new LinkedList<>();
+        Random R = new Random();
+        for(NodeLocation N : parent1.PATH){
+            if(parent2.PATH.contains(N) && R.nextInt(2) == 0){
+                swapLocations.add(N);
+            }
+        }
+        return swapLocations;
     }
 }
