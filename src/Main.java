@@ -1,11 +1,12 @@
 import java.awt.*;
 import java.util.LinkedList;
-import java.util.ListIterator;
 import java.util.Random;
 
 public class Main {
 
     private static int GRIDSIZE = 16;
+    private static int GROUPSIZE = 10;
+    private static int NUMBER_OF_CHILDREN = 5;
 
     public static void main(String[] args) throws Exception{
 
@@ -48,10 +49,10 @@ public class Main {
 
 
 
-        Chromosome[] firstGroup = new Chromosome[20];
+        Chromosome[] firstGroup = new Chromosome[GROUPSIZE];
         Chromosome currentMember;
         F.setTitle("generation 1");
-        for (int i = 0; i < 20; i++){
+        for (int i = 0; i < GROUPSIZE; i++){
             currentMember = new Chromosome();
             currentMember.createPath(fieldMatrix);
             for(NodeLocation curr : currentMember.PATH){
@@ -67,7 +68,7 @@ public class Main {
 
 
 
-        Selector selector = new TournamentSelection(2);
+        Selector selector = new TournamentSelection(NUMBER_OF_CHILDREN);
         selector.setElitism(false);
         Chromosome[] Parents = selector.produceSelection(firstGroup);
 
@@ -93,7 +94,7 @@ public class Main {
 //            }
 //            System.out.println("\n");
             F.setTitle("children of " + i + " and " + (i+1));
-            for (Chromosome c : crossPollinate(Parents[i], Parents[i+1], 4)) {
+            for (Chromosome c : crossPollinate(Parents[i], Parents[i+1], NUMBER_OF_CHILDREN)) {
                 System.out.println(c.SCORE);
                 for (NodeLocation curr : c.PATH) {
                     F.colour(curr.GRID_X, curr.GRID_Y, c.PATH_COLOUR);
@@ -106,84 +107,58 @@ public class Main {
         
     }
 
-    static Chromosome[] crossPollinate(Chromosome par1, Chromosome par2, int number_of_children) {
-        /*
-        for number_of_children times
-            create path P
-            currentPath = par1.PATH
-            crossPath = par2.PATH
-            while(currentPath has next) do
-                P.add(currentPath.getNext)
-                if( currentPath intersects otherPath )
-                    50/50 chance swap(currentPath, otherPath)
-            end while
-            children_array[i] = new Chromosome(P)
-        end for
-        return children_array
-         */
-        Chromosome[] children = new Chromosome[number_of_children];
-        Random R = new Random();
-        int choice;
-        LinkedList<NodeLocation> currentPath = par1.PATH;
-        LinkedList<NodeLocation> crossPath = par2.PATH;
-        LinkedList<NodeLocation> tempPath;
-        ListIterator<NodeLocation> tempIterator;
-        for (int i = 0; i < number_of_children; i++) {
-            ListIterator<NodeLocation> currentIterator = par1.PATH.listIterator();
-            ListIterator<NodeLocation> crossIterator = par2.PATH.listIterator();
-            LinkedList<NodeLocation> P = new LinkedList<>();
-            NodeLocation curr, closest_point_marker = new NodeLocation(false, 0,0);
-            int closest = 100;
-            while(currentIterator.hasNext()){
-                curr = currentIterator.next();
-                if(P.contains(curr))
-                    continue;
-                //System.out.println(curr.COLUMN + " , " + curr.ROW);
-                P.add(curr);
+    private static Chromosome[] crossPollinate(Chromosome par1, Chromosome par2, int number_of_children) {
+        Chromosome[] CHILDREN = new Chromosome[number_of_children];
+        LinkedList[] PARENT = {par1.PATH, par2.PATH};
+        int picker = 0;
+        for(int i = 0; i < number_of_children; i++){
+            LinkedList<NodeLocation> child = new LinkedList<>();
+            LinkedList<NodeLocation> swapLocations = getSwapLocations(par1, par2);
+            LinkedList<NodeLocation> currentParent = PARENT[0];
+            //test begin
+//            for(NodeLocation N: swapLocations){
+//                if(par1.PATH.contains(N))
+//                    System.out.println("Success for 1: " + N.getName());
+//                else
+//                    System.out.println("Failure for 1");
+//
+//                if(par2.PATH.contains(N))
+//                    System.out.println("Success for 2");
+//                else
+//                    System.out.println("Failure for 2");
+//            }
+            //test end
 
-                int currScore = Math.abs(curr.COLUMN - GRIDSIZE) + Math.abs(curr.ROW - GRIDSIZE);
-                if(currScore <= closest){
-                    closest = currScore;
-                    closest_point_marker = curr;
+            //...
+//            NodeLocation selectionMarker = swapLocations.remove();
+            int selectionStart = 0;
+            while(!swapLocations.isEmpty()){
+                int selectionEnd = currentParent.indexOf(swapLocations.remove());
+                int currentLocation = selectionStart;
+                while(currentLocation < selectionEnd){
+                    child.add(currentParent.get(currentLocation++));
                 }
-                if (crossPath.contains(curr)) {
-                    choice = R.nextInt(2);
-//                    System.out.println("Potential Switch");
-                    if (choice == 0) {
-//                        System.out.println("actual Switch");
-                        int index = crossPath.indexOf(curr);
-                        while(index-1 > crossIterator.nextIndex()){
-                            System.out.println("\nNEXT - Index-1: " + (index-1) + " Iterator: " + crossIterator.nextIndex()+ " crosssize: "
-                                    + crossPath.size() +" currentsize: " +  currentPath.size()+ "curr: " + curr.getName());
-                            if(!currentIterator.hasNext()){
-                                System.out.println("\nhappened\n");
-                                break;
-                            }
-                            crossIterator.next();
-                        }
-                        while(index <= crossIterator.previousIndex()){
-                            System.out.println("\nPREV - Index: " + index + " Iterator: " + crossIterator.nextIndex()+ " crosssize: "
-                                    + crossPath.size() +" currentsize: " +  currentPath.size() + "curr: " + curr.getName());
-                            crossIterator.previous();
-                        }
-                        tempIterator = crossIterator;
-                        crossIterator = currentIterator;
-                        currentIterator = tempIterator;
+                currentParent = PARENT[picker++%2];
+                selectionStart = selectionEnd;
+            }
 
-                        tempPath = crossPath;
-                        crossPath = currentPath;
-                        currentPath = tempPath;
-                    }
-                }
+            //...
+            if(child.isEmpty())
+                System.out.println("Child is empty apparently");
+
+            NodeLocation closestPoint;
+            if(child.contains(par1.CLOSEST_POINT) && child.contains(par2.CLOSEST_POINT)){
+                closestPoint = max(par1.CLOSEST_POINT, par2.CLOSEST_POINT);
             }
-            for(NodeLocation n : P){
-                System.out.print(n.getName()+ " | ");
+            else if (child.contains(par1.CLOSEST_POINT)){
+                closestPoint = par1.CLOSEST_POINT;
             }
-            System.out.println("\n");
-            Chromosome child = new Chromosome(P, GRIDSIZE, mixColour(par1, par2), closest_point_marker);
-            children[i] = child;
+            else {
+                closestPoint = par2.CLOSEST_POINT;
+            }
+            CHILDREN[i] = new Chromosome(child, GRIDSIZE, mixColour(par1, par2), closestPoint);
         }
-        return children;
+        return CHILDREN;
     }
 
     static Color mixColour(Chromosome par1, Chromosome par2){
@@ -191,19 +166,29 @@ public class Main {
         int offsetR = R.nextInt(40) - 20;
         int offsetG = R.nextInt(20) - 20;
         int offsetB = R.nextInt(20) - 20;
-        return new Color(((par1.PATH_COLOUR.getRed() + par2.PATH_COLOUR.getRed())/2 + offsetR)%255 + 1,
-                ((par1.PATH_COLOUR.getGreen() + par2.PATH_COLOUR.getGreen())/2 + offsetG)%255 + 1,
-                ((par1.PATH_COLOUR.getBlue() + par2.PATH_COLOUR.getBlue())/2 + offsetB)%255 + 1);
+        return new Color(Math.abs((par1.PATH_COLOUR.getRed() + par2.PATH_COLOUR.getRed())/2 + offsetR)%255 + 1,
+                Math.abs((par1.PATH_COLOUR.getGreen() + par2.PATH_COLOUR.getGreen())/2 + offsetG)%255 + 1,
+                Math.abs((par1.PATH_COLOUR.getBlue() + par2.PATH_COLOUR.getBlue())/2 + offsetB)%255 + 1);
     }
 
-    private LinkedList<NodeLocation> getSwapLocations(Chromosome parent1, Chromosome parent2){
+    private static LinkedList<NodeLocation> getSwapLocations(Chromosome parent1, Chromosome parent2){
         LinkedList<NodeLocation> swapLocations = new LinkedList<>();
         Random R = new Random();
         for(NodeLocation N : parent1.PATH){
-            if(parent2.PATH.contains(N) && R.nextInt(2) == 0){
+            if(parent2.PATH.contains(N) && R.nextInt(2) == 0 && !swapLocations.contains(N)){
                 swapLocations.add(N);
             }
         }
         return swapLocations;
+    }
+
+    private static NodeLocation max(NodeLocation location1, NodeLocation location2){
+        if(location1.ROW + location1.COLUMN >= location2.ROW + location2.COLUMN){
+            return location1;
+        }
+        else{
+            return location2;
+        }
+
     }
 }

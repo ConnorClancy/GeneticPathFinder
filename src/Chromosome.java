@@ -6,7 +6,7 @@ public class Chromosome implements Comparable{
 
     Color PATH_COLOUR;
     LinkedList<NodeLocation> PATH = new LinkedList<>();
-    private NodeLocation CLOSEST_POINT;
+    NodeLocation CLOSEST_POINT;
     int SCORE;
 
     //used for initial population space
